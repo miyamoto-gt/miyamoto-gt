@@ -19,7 +19,11 @@ domains:
   model-impl: "Model impl."
   web-app: "Web app"
   data-analysis: "Data analysis"
-
+# チーム開発のリポジトリで、自分が書いた言語だけを数える
+# (書かれていないリポジトリは、全部の言語を数える)
+my_languages:
+  jphacks/kz_2607: [Python]
+  Hackit-2026/Team18: [JavaScript, Python]
 # 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
 domain_overrides:
   Hackit-2026/Team18: [web-app, llm-tuning]

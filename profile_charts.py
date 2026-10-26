@@ -195,15 +195,19 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
     plt.rcParams.update({
         "figure.facecolor": t["bg"], "axes.facecolor": t["bg"], "savefig.facecolor": t["bg"],
         "text.color": t["fg"], "axes.labelcolor": t["fg"], "xtick.color": t["sub"], "ytick.color": t["sub"],
-        "axes.edgecolor": t["grid"], "font.size": 10, "svg.fonttype": "path",
+        "axes.edgecolor": t["grid"], "font.size": 13, "svg.fonttype": "path",
+        "axes.titlesize": 16, "axes.titleweight": "bold",
     })
-    fig, axs = plt.subplots(1, 3, figsize=(15, 4.6), gridspec_kw={"width_ratios": [1.3, 1.1, 1]})
+    # 上段に学習曲線を横いっぱいに、下段にヒートマップと Attention を並べる
+    fig, ax_map = plt.subplot_mosaic([["curve", "curve"], ["heat", "attn"]], figsize=(12, 10),
+                                     gridspec_kw={"height_ratios": [1, 1.05], "width_ratios": [1.15, 1]})
+    axs = [ax_map["curve"], ax_map["heat"], ax_map["attn"]]
 
     # ① 学習曲線
     months, x, train, val, n = learning_curve(data, cfg)
     ax = axs[0]
-    ax.plot(x, train, "o-", c=t["train"], ms=4, label="train loss (commits)")
-    ax.plot(x, val, "o--", c=t["val"], ms=4, label="val loss (new language × domain)")
+    ax.plot(x, train, "o-", c=t["train"], ms=6, lw=2.2, label="train loss (commits)")
+    ax.plot(x, val, "o--", c=t["val"], ms=6, lw=2.2, label="val loss (new language × domain)")
     last_xi, flip = -9.0, False
     for ms in sorted(cfg.get("milestones") or [], key=lambda m: str(m["date"])):
         d = dt.date.fromisoformat(str(ms["date"]))
@@ -214,14 +218,14 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
         yi = float(np.interp(xi, x, train))
         flip = (not flip) if xi - last_xi < 0.9 else False  # 近い節目は上下交互に置く
         last_xi = xi
-        ax.plot([xi], [yi], marker="*", ms=11, c=t["fg"], zorder=3)
-        ax.annotate(ms["label"], (xi, yi), xytext=(0, 18 if flip else -32), textcoords="offset points",
-                    ha="center", fontsize=8, color=t["sub"])
+        ax.plot([xi], [yi], marker="*", ms=15, c=t["fg"], zorder=3)
+        ax.annotate(ms["label"], (xi, yi), xytext=(0, 20 if flip else -38), textcoords="offset points",
+                    ha="center", fontsize=11, color=t["sub"])
     ax.set_xticks([i + .5 for i in range(len(months))], [m.strftime("%b") for m in months])
     ax.set_xlim(-.1, len(months))
     ax.set_ylim(0, 2.7)
     ax.set_title(f"Learning Curve — {cfg['user']}  ({n} commits)", loc="left")
-    ax.legend(frameon=False, fontsize=8, loc="upper right")
+    ax.legend(frameon=False, fontsize=11, loc="upper right")
 
     # ② 言語 × 分野
     langs, doms, v = language_domain(data, cfg)
@@ -235,7 +239,7 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
             for j in range(len(doms)):
                 r, g, b, _ = cmap(v[i, j])
                 light_cell = 0.299 * r + 0.587 * g + 0.114 * b > 0.5  # セルの明るさで文字色を決める
-                ax.text(j, i, f"{v[i, j]:.2f}", ha="center", va="center", fontsize=8,
+                ax.text(j, i, f"{v[i, j]:.2f}", ha="center", va="center", fontsize=11,
                         color="#1f2328" if light_cell else "#ffffff")
     ax.set_title("Language × Domain", loc="left")
 
@@ -247,12 +251,12 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
     colors = [t["bars"][1] if w == max(weights) and w > 0 else t["bars"][0] for w in weights]
     ax.barh(labels, weights, color=colors)
     for i, w in enumerate(weights):
-        ax.text(w + .01, i, f"{w:.2f}", va="center", fontsize=8)
+        ax.text(w + .01, i, f"{w:.2f}", va="center", fontsize=11)
     ax.set_xlim(0, max(max(weights, default=0) * 1.3, .1))
     ax.set_title(f"Attention weights — last {cfg.get('attention_days', 30)} days", loc="left")
 
     stamp = f"updated {dt.date.today()}" + ("  ·  SAMPLE DATA" if is_sample else "")
-    fig.text(.995, .01, stamp, ha="right", fontsize=8, color=t["sub"])
+    fig.text(.995, .01, stamp, ha="right", fontsize=10, color=t["sub"])
     plt.tight_layout()
     fig.savefig(path)
     plt.close(fig)

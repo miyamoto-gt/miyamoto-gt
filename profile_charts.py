@@ -111,6 +111,14 @@ def repo_domains(repo: dict, cfg: dict) -> list[str]:
     return [t for t in tags if t in cfg["domains"]]
 
 
+def repo_languages(repo: dict, cfg: dict) -> dict:
+    """チーム開発のリポジトリでは、自分が書いた言語だけを数える(my_languages で指定)。"""
+    mine = (cfg.get("my_languages") or {}).get(repo["name"])
+    if not mine:
+        return repo["languages"]
+    return {k: v for k, v in repo["languages"].items() if k in mine}
+
+
 def months_between(start: dt.date, end: dt.date) -> list[dt.date]:
     out, d = [], start.replace(day=1)
     while d <= end:
@@ -131,7 +139,7 @@ def learning_curve(data: dict, cfg: dict):
             continue
         all_commits += r["commits"]
         first = min(r["commits"])
-        for lang in r["languages"]:
+        for lang in repo_languages(r, cfg):
             for dom in repo_domains(r, cfg) or ["other"]:
                 key = (lang, dom)
                 first_seen[key] = min(first_seen.get(key, first), first)
@@ -155,8 +163,9 @@ def language_domain(data: dict, cfg: dict):
     mat: dict[str, Counter] = defaultdict(Counter)
     for r in data["repos"]:
         doms = repo_domains(r, cfg)
-        total = sum(r["languages"].values()) or 1
-        for lang, b in r["languages"].items():
+        langs = repo_languages(r, cfg)
+        total = sum(langs.values()) or 1
+        for lang, b in langs.items():
             for d in doms:
                 mat[lang][d] += b / total / len(doms)
     doms = list(cfg["domains"])

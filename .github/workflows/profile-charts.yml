@@ -3,26 +3,35 @@ name: profile charts
 on:
   schedule:
     - cron: "15 15 * * *" # 毎日 0:15 (JST)
-  workflow_dispatch:
+  workflow_dispatch: # 手動でも実行できる
   push:
-    paths: ["profile_config.yml", "profile_charts.py"]
+    paths: ["profile_config.yml", "profile_charts.py"] # 設定を変えたらすぐ描き直す
 
 permissions:
   contents: write
+
+# 同時に2つ動いたら古い方を止める(画像の取り合いを防ぐ)
+concurrency:
+  group: profile-charts
+  cancel-in-progress: true
 
 jobs:
   draw:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - run: pip install matplotlib numpy requests pyyaml
+
       - run: python profile_charts.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MY_EMAILS: ${{ secrets.MY_EMAILS }}
+
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
@@ -30,5 +39,5 @@ jobs:
           git add assets
           git diff --cached --quiet && exit 0
           git commit -m "Update profile charts"
-          git pull --rebase
+          git pull --rebase -X theirs
           git push

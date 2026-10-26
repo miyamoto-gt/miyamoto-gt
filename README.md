@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
+  <img width="100%" alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
+</picture>
+
 ## 👋 Hi, I'm Miya
 
 小型LLMを「自分のデータで、自分の用途に合わせて」育てることに取り組んでいる学生です。
@@ -5,24 +10,33 @@
 
 ## 🔭 What I'm doing now
 
-- **🧠 Transformerを0から作って、中身を理解する**
-  Attentionをnumpyで手書きするところから始めて、PyTorchで小さなTransformerを自作しています。壊して挙動を観察しながら、AIの内部で何が起きているかを追っています。
-- **🔧 小型LLMを追加学習して、アプリ専用のモデルにする**
-  大きなモデルの出力を教師データとして集め、LFM2.5などの小型モデルにLoRAで学習させています。データの設計・収集から学習、アプリへの組み込みまでを一通りやっています。
-- **📚 RAGで小型モデルの限界を補う**
-  3B規模のモデル単体で何ができて何ができないかを測り、足りない部分を検索で補う設計を試しています。
-- **🌱 LLM-jp に参加中**
+### 🧠 Main: モデルの「中身」を理解する
+
+**外部講義で、LLM・Physical AI・AIエンジニアリングを体系的に学んでいます**
+
+| 分野 | 学んでいること |
+| --- | --- |
+| **LLM** | Transformer / Attentionの仕組み、事前学習とスケーリング則、SFT・LoRA・DPOによる追加学習、強化学習によるアラインメント、量子化、安全性、RAG・エージェント |
+| **Physical AI** | 模倣学習と強化学習によるロボットの行動学習、VLA(画像と言語から行動を出す基盤モデル)、シミュレーション環境での実験 |
+| **AI Engineering** | 学習したモデルの推論APIとしてのデプロイ、MLOps・CI/CDによる学習〜公開の自動化 |
+
+- 最終課題では、QLoRAでSFTを行ったあとDPOで好みを学習させ、Base → SFT → DPO と段階ごとの性能差を自分で検証
+
+**Transformerを0から自作する** — [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1)
+- Attentionをnumpyで手書きし、PyTorchで小さなTransformerを組み立てる
+- 一部を壊したり外したりして、挙動がどう変わるかを観察する
+- 次は、自作Transformerに素数判定を学習させ、内部で何を学んでいるかを可視化する予定
+
+### 🔧 Applied: 学んだことをアプリに組み込む
+- 大きなモデルの出力を教師データにして、小型モデル(LFM2.5)をLoRAで学習させる — あいづち
+- 3B規模のモデル単体の限界を測り、RAGで補う
+
+### 🌱 Community
+- LLM-jp に参加中
 
 ## 🎯 Goal
 
 卒業までに、自分で学習したモデルを1つ公開し、他の人が使える状態にすること。
-
-## 📊 Model Card
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
-  <img alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
-</picture>
 
 ## 🚀 Projects
 
@@ -37,11 +51,3 @@
 ## 🌱 Skills
 
 <img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,tailwind,html,css,git" />
-
-<!-- TODAY:START -->
-### 🔢 今日の数 (2026-10-27)
-
-- 今日は元日から **300日目**。**300** は素数ではありません(300 = 2<sup>2</sup> × 3 × 5<sup>2</sup>)
-- 約数の和で分類すると **過剰数**
-- π: 今日の日付 **1027** は、円周率の小数点以下 **163桁目** から現れます
-<!-- TODAY:END -->

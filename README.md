@@ -52,7 +52,7 @@
 | Project | 何をしたか | 技術 |
 | --- | --- | --- |
 | [あいづち \| AIZUCHI](https://github.com/Hackit-2026/Team18) | 一人配信にAIが視聴者コメントを返すアプリ。基盤サイトを実装し、コメント生成用の小型モデルを自作データで学習中(hackit 2026 DMM賞) | Node.js / OpenAI API / LFM2.5 / Unsloth |
-| [kz_2607](https://github.com/jphacks/kz_2607) | (ここに一言説明)。性格の軸ごとのLoRAによる生成と、自作Transformerによる判定モデルを担当(JPHACKS 2026) | PyTorch / LoRA |
+| [kz_2607](https://github.com/jphacks/kz_2607) | 会話で育てたペットを、次の人へ旅立たせるサービス。6つの質問から性格と見た目が決まり、覚えた言葉や思い出を持って人から人へ渡っていく(M5Stack Core2 + スマホ)。性格の軸ごとのLoRAによる会話生成と、自作Transformerによる判定モデルを担当(JPHACKS 2026) | PyTorch / LoRA |
 | [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1) | AttentionのスクラッチからTransformerの自作まで | NumPy / PyTorch |
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |

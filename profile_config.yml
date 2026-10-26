@@ -23,10 +23,10 @@ domains:
 # (書かれていないリポジトリは、全部の言語を数える)
 my_languages:
   jphacks/kz_2607: [Python]
-  Hackit-2026/Team18: [JavaScript, Python]
+  Hackit-2026/Team18: [Python]
 # 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
 domain_overrides:
-  Hackit-2026/Team18: [web-app, llm-tuning]
+  Hackit-2026/Team18: [llm-tuning]
   jphacks/kz_2607: [model-impl, llm-tuning]
 
 # 学習曲線に書き込む節目(新しい節目ができたら1行足す)

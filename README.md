@@ -8,9 +8,9 @@
 小型LLMを「自分のデータで、自分の用途に合わせて」育てることに取り組んでいる学生です。
 モデルの中身を理解すること、そして作ったモデルを実際に動くアプリに組み込むことの両方を大事にしています。
 
-## 🔭 What I'm doing now
+## What I'm doing now
 
-### 🧠 Main: モデルの「中身」を理解する
+### Main: モデルの「中身」を理解する
 
 **外部講義で、LLM・Physical AI・AIエンジニアリングを体系的に学んでいます**
 
@@ -27,18 +27,27 @@
 - 一部を壊したり外したりして、挙動がどう変わるかを観察する
 - 次は、自作Transformerに素数判定を学習させ、内部で何を学んでいるかを可視化する予定
 
-### 🔧 Applied: 学んだことをアプリに組み込む
+**Models**
+- 小型モデル:LFM2 / LFM2.5(Liquid AI)、Qwen3、sarashina2.2-3b
+- 埋め込みモデル:Ruri(日本語の検索・RAG用)
+
+**Training & Inference**
+- 追加学習:LoRA / QLoRA、SFT、DPO
+- ツール:Unsloth、Hugging Face、Ollama、mlx-lm、Google Colab
+- 応用:RAG、教師モデルの出力を使った蒸留
+
+###  Applied: 学んだことをアプリに組み込む
 - 大きなモデルの出力を教師データにして、小型モデル(LFM2.5)をLoRAで学習させる — あいづち
 - 3B規模のモデル単体の限界を測り、RAGで補う
 
-### 🌱 Community
+### Community
 - LLM-jp に参加中
 
-## 🎯 Goal
+## Goal
 
 卒業までに、自分で学習したモデルを1つ公開し、他の人が使える状態にすること。
 
-## 🚀 Projects
+## Projects
 
 | Project | 何をしたか | 技術 |
 | --- | --- | --- |
@@ -47,14 +56,7 @@
 | [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1) | AttentionのスクラッチからTransformerの自作まで | NumPy / PyTorch |
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |
-**🤖 Models**
-- 小型モデル:LFM2 / LFM2.5(Liquid AI)、Qwen3、sarashina2.2-3b
-- 埋め込みモデル:Ruri(日本語の検索・RAG用)
 
-**🔧 Training & Inference**
-- 追加学習:LoRA / QLoRA、SFT、DPO
-- ツール:Unsloth、Hugging Face、Ollama、mlx-lm、Google Colab
-- 応用:RAG、教師モデルの出力を使った蒸留
-## 🌱 Skills
+##　Skills
 
 <img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,html,css,git,aws" />

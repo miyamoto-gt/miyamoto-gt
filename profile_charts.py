@@ -62,8 +62,19 @@ class GitHub:
             page += 1
 
 
+def is_mine(c: dict, user: str, my_emails: set[str]) -> bool:
+    """GitHubアカウントに紐づいたコミットか、my_emails に書いたメールのコミットなら自分のもの。"""
+    login = (c.get("author") or {}).get("login", "")
+    email = (c["commit"]["author"].get("email") or "").lower()
+    return login.lower() == user.lower() or email in my_emails
+
+
 def fetch(cfg: dict) -> dict:
     gh, user = GitHub(), cfg["user"]
+    # メールは公開ファイルに書かず、Actions の Secret「MY_EMAILS」(カンマ区切り)から読む
+    secret = os.environ.get("MY_EMAILS", "")
+    my_emails = {e.strip().lower() for e in secret.split(",") if e.strip()}
+    my_emails |= {e.lower() for e in (cfg.get("my_emails") or [])}
     since = f"{cfg['start']}T00:00:00Z"
     names = {r["full_name"] for r in gh.pages(f"/users/{user}/repos", type="owner") if not r["fork"]}
     names |= set(cfg.get("extra_repos") or [])
@@ -75,7 +86,8 @@ def fetch(cfg: dict) -> dict:
             info = gh.get(f"/repos/{name}")
             langs = gh.get(f"/repos/{name}/languages")
             commits = [c["commit"]["author"]["date"][:10]
-                       for c in gh.pages(f"/repos/{name}/commits", author=user, since=since)]
+                       for c in gh.pages(f"/repos/{name}/commits", since=since)
+                       if is_mine(c, user, my_emails)]
         except requests.HTTPError as e:
             print(f"skip {name}: {e}", file=sys.stderr)
             continue

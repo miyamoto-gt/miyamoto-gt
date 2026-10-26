@@ -47,7 +47,14 @@
 | [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1) | AttentionのスクラッチからTransformerの自作まで | NumPy / PyTorch |
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |
+**🤖 Models**
+- 小型モデル:LFM2 / LFM2.5(Liquid AI)、Qwen3、sarashina2.2-3b
+- 埋め込みモデル:Ruri(日本語の検索・RAG用)
 
+**🔧 Training & Inference**
+- 追加学習:LoRA / QLoRA、SFT、DPO
+- ツール:Unsloth、Hugging Face、Ollama、mlx-lm、Google Colab
+- 応用:RAG、教師モデルの出力を使った蒸留
 ## 🌱 Skills
 
-<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,tailwind,html,css,git" />
+<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,html,css,git,aws" />

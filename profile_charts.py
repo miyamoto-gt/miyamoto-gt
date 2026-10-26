@@ -13,6 +13,7 @@ from __future__ import annotations
 import datetime as dt
 import os
 import random
+import re
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -73,8 +74,9 @@ def fetch(cfg: dict) -> dict:
     gh, user = GitHub(), cfg["user"]
     # メールは公開ファイルに書かず、Actions の Secret「MY_EMAILS」(カンマ区切り)から読む
     secret = os.environ.get("MY_EMAILS", "")
-    my_emails = {e.strip().lower() for e in secret.split(",") if e.strip()}
+    my_emails = {e.strip().lower() for e in re.split(r"[,、，\s]+", secret) if e.strip()}
     my_emails |= {e.lower() for e in (cfg.get("my_emails") or [])}
+    print(f"my_emails: {len(my_emails)} 件読み込み", file=sys.stderr)  # アドレス自体はログに出さない
     since = f"{cfg['start']}T00:00:00Z"
     names = {r["full_name"] for r in gh.pages(f"/users/{user}/repos", type="owner") if not r["fork"]}
     names |= set(cfg.get("extra_repos") or [])

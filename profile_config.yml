@@ -1,13 +1,6 @@
 # プロフィール図の設定。自分で編集するのはこのファイルだけ。
 
 user: miyamoto-gt
-# GitHubに登録していないメールのコミットも、自分のものとして数える
-my_emails:
-  - miya@miyanoMacBook-Air.local
-  - miya@miya.local
-  - c1403891@st.kanazawa-it.ac.jp
-  - hidemiya0211@docomo.ne.jp
-  - hidemiya3327@gmail.com
 start: 2026-03-01 # 学習曲線の開始月
 
 # 自分のリポジトリ(公開)は自動で集める。それ以外に含めたい組織リポジトリをここに書く

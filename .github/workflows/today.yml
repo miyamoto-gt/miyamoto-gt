@@ -1,0 +1,29 @@
+name: today's number
+
+on:
+  schedule:
+    - cron: "5 15 * * *" # 毎日 0:05 (JST)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install sympy mpmath
+      - run: python today_number.py README.md
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Update today's number"
+          git pull --rebase
+          git push

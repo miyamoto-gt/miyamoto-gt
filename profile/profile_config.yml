@@ -28,10 +28,10 @@ domain_overrides:
 # 学習曲線に書き込む節目(新しい節目ができたら1行足す)
 # ※ 日付は仮置き。実際の日付に直すこと
 milestones:
-  - { date: 2026-05-15, label: "chatbot" }
-  - { date: 2026-06-15, label: "weather" }
-  - { date: 2026-08-25, label: "Transformer\nfrom scratch" }
-  - { date: 2026-09-01, label: "hackit\nDMM award" }
+  - { date: 2026-06-30, label: "chatbot" }
+  - { date: 2026-07-03, label: "weather" }
+  - { date: 2026-08-24, label: "Transformer\nfrom scratch" }
+  - { date: 2026-08-03, label: "hackit\nDMM award" }
   - { date: 2026-10-25, label: "JPHACKS" }
 
 # 図の細かい設定

@@ -167,7 +167,7 @@ def learning_curve(data: dict, cfg: dict):
         n_commits = sum(c < str(end) for c in all_commits)
         n_pairs = sum(d < str(end) for d in first_seen.values())
         xs.append(i + (end - m).days / (next_m - m).days)
-        train.append(2.5 / (1 + n_commits / 40))
+        train.append(2.5 / (1 + n_commits / 100))
         val.append(2.5 / (1 + n_pairs / 4))
     return months, xs, train, val, len(all_commits)
 

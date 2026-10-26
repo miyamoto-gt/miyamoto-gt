@@ -1,0 +1,39 @@
+# プロフィール図の設定。自分で編集するのはこのファイルだけ。
+
+user: miyamoto-gt
+start: 2026-03-01 # 学習曲線の開始月
+
+# 自分のリポジトリ(公開)は自動で集める。それ以外に含めたい組織リポジトリをここに書く
+extra_repos:
+  - Hackit-2026/Team18
+  - jphacks/kz_2607
+
+# 集計から外すリポジトリ(プロフィール用リポジトリなど)
+exclude_repos:
+  - miyamoto-gt/miyamoto-gt
+
+# リポジトリの Topics と、図に出す分野名の対応
+# リポジトリ設定の Topics に左側のタグを付けると、その分野として数えられる
+domains:
+  llm-tuning: "LLM tuning"
+  model-impl: "Model impl."
+  web-app: "Web app"
+  data-analysis: "Data analysis"
+
+# 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
+domain_overrides:
+  Hackit-2026/Team18: [web-app, llm-tuning]
+  jphacks/kz_2607: [model-impl, llm-tuning]
+
+# 学習曲線に書き込む節目(新しい節目ができたら1行足す)
+# ※ 日付は仮置き。実際の日付に直すこと
+milestones:
+  - { date: 2026-05-15, label: "chatbot" }
+  - { date: 2026-06-15, label: "weather" }
+  - { date: 2026-08-25, label: "Transformer\nfrom scratch" }
+  - { date: 2026-09-01, label: "hackit\nDMM award" }
+  - { date: 2026-10-25, label: "JPHACKS" }
+
+# 図の細かい設定
+top_languages: 6 # ヒートマップに出す言語の数
+attention_days: 30 # Attention weights を何日分のコミットで計算するか

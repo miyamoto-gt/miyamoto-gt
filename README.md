@@ -23,9 +23,10 @@
 - 最終課題では、QLoRAでSFTを行ったあとDPOで好みを学習させ、Base → SFT → DPO と段階ごとの性能差を自分で検証
 
 **Transformerを0から自作する** — [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1)
-- Attentionをnumpyで手書きし、PyTorchで小さなTransformerを組み立てる
-- 一部を壊したり外したりして、挙動がどう変わるかを観察する
-- 次は、自作Transformerに素数判定を学習させ、内部で何を学んでいるかを可視化する予定
+- Transformerをゼロから実装して、中身を自分の手で理解する
+- Attentionの本体は固定したまま、入口(入力)と出口(出力)を差し替えて、各部品の役割を確かめる(入口 → 本体 → 出口)
+- 実験の結果を数字で記録し、「何を変えたか/何が起きたか/なぜか」を自分の言葉で説明できるようになる
+- 各週における進捗記録[Zenn](https://zenn.dev/miyamoto_gt)
 
 **Models**
 - 小型モデル:LFM2 / LFM2.5(Liquid AI)、Qwen3、sarashina2.2-3b

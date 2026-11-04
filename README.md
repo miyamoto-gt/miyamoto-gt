@@ -59,7 +59,7 @@
 | [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1) | AttentionのスクラッチからTransformerの自作まで | NumPy / PyTorch |
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |
-
+| [KIT RAG](https://github.com/miyamoto-gt/KIT_LLM_RAG) | 金沢工業大学についての質問に、3Bの小型モデルだけで答えるRAG(DataDreamers 内コンペ)。大学サイトのリンクを木構造でたどってページとPNG画像から情報を集め、キャンパスマップ画像から建物や部屋を特定する検索部分まで含めて、アーキテクチャを1から実装 | sarashina2.2-3b / 埋め込み検索 / Colab |
 ## Skills
 
 <img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,html,css,git,aws" />

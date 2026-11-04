@@ -57,6 +57,6 @@
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |
 
-##　Skills
+## Skills
 
 <img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,html,css,git,aws" />

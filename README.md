@@ -42,7 +42,9 @@
 - 3B規模のモデル単体の限界を測り、RAGで補う
 
 ### Community
-- LLM-jp に参加中
+- LLM-jp
+- GDGoc
+- DataDreamers
 
 ## Goal
 

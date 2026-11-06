@@ -244,7 +244,8 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
         ax.plot([xi], [yi], marker="*", ms=15, c=t["fg"], zorder=3)
         ax.annotate(ms["label"], (xi, yi), xytext=(0, 20 if flip else -38), textcoords="offset points",
                     ha="center", fontsize=11, color=t["sub"])
-    ax.set_xticks([i + .5 for i in range(len(months))], [m.strftime("%b") for m in months])
+    # 目盛りは各月の1日の位置に置く(線の右端 = 今日)
+    ax.set_xticks(list(range(len(months))), [m.strftime("%b") for m in months])
     ax.set_xlim(-.1, len(months))
     ax.set_ylim(0, 2.7)
     ax.set_title(f"Learning Curve — {cfg['user']}  ({n} commits)", loc="left")

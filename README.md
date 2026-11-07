@@ -27,7 +27,6 @@
 **Transformerを0から自作する** — [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1)
 - Attentionをnumpyで手書きし、PyTorchで小さなTransformerを組み立てる
 - 一部を壊したり外したりして、挙動がどう変わるかを観察する
-- 次は、自作Transformerに素数判定を学習させ、内部で何を学んでいるかを可視化する予定
 
 ### Applied: 学んだことをアプリに組み込む
 - 大きなモデルの出力を教師データにして、小型モデル(LFM2.5)をLoRAで学習させる — あいづち

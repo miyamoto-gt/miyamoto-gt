@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import json
 import os
 import random
 import re
@@ -38,6 +39,78 @@ THEMES = {
 
 
 # ---------------------------------------------------------------- データ取得
+
+# コードの import や依存ファイルから見つけるライブラリ・ツール(左: 探す文字列 / 右: 図に出す名前)
+TOOLS = {
+    "torch": "PyTorch", "transformers": "Transformers", "peft": "PEFT", "trl": "TRL",
+    "unsloth": "Unsloth", "bitsandbytes": "bitsandbytes", "datasets": "HF Datasets",
+    "sentence_transformers": "SBERT", "sentence-transformers": "SBERT",
+    "mlx_lm": "MLX", "mlx-lm": "MLX", "ollama": "Ollama", "llama_cpp": "llama.cpp",
+    "langchain": "LangChain", "faiss": "FAISS", "chromadb": "Chroma",
+    "sklearn": "scikit-learn", "scikit-learn": "scikit-learn", "statsmodels": "statsmodels",
+    "pandas": "pandas", "numpy": "NumPy", "matplotlib": "matplotlib",
+    "gymnasium": "Gymnasium", "gym": "Gymnasium", "stable_baselines3": "SB3",
+    "fastapi": "FastAPI", "flask": "Flask", "streamlit": "Streamlit", "gradio": "Gradio",
+    "openai": "OpenAI API", "google.generativeai": "Gemini API", "@google/generative-ai": "Gemini API",
+    "boto3": "AWS SDK", "express": "Express", "react": "React",
+}
+# ツールを大まかな種類にまとめる(heatmap_rows: groups のとき使う)
+TOOL_GROUPS = {
+    "Deep Learning": ["PyTorch", "Transformers", "PEFT", "TRL", "Unsloth", "bitsandbytes", "HF Datasets", "MLX"],
+    "Classic ML & Data": ["pandas", "scikit-learn", "statsmodels", "NumPy", "matplotlib"],
+    "Retrieval & LLM": ["SBERT", "LangChain", "FAISS", "Chroma", "Ollama", "llama.cpp",
+                        "OpenAI API", "Gemini API", "AWS SDK"],
+    "Serving & Web": ["FastAPI", "Flask", "Streamlit", "Gradio", "Express", "React"],
+    "RL": ["Gymnasium", "SB3"],
+}
+CODE_EXT = {".py": "Python", ".ipynb": "Jupyter Notebook", ".js": "JavaScript", ".ts": "TypeScript",
+            ".jsx": "JavaScript", ".tsx": "TypeScript"}
+DEP_FILES = ("requirements.txt", "requirements-dev.txt", "pyproject.toml", "package.json")
+
+
+def find_tools(text: str) -> set[str]:
+    """ソースや依存ファイルの中身から、使っているツールを見つける。"""
+    found = set()
+    for line in text.splitlines():
+        s = line.strip().strip('",')
+        for key, name in TOOLS.items():
+            k = re.escape(key)
+            if re.search(rf"^(?:from|import)\s+{k}\b", s) or re.search(rf"require\(['\"]{k}['\"]\)", s) \
+               or re.search(rf"from\s+['\"]{k}['\"]", s) or re.match(rf"^{k}\s*(?:[=<>~!\[;:\"]|$)", s):
+                found.add(name)
+    return found
+
+
+def fetch_tools(gh, name: str, langs_allowed: set | None) -> set[str]:
+    """リポジトリのファイル一覧から依存ファイルとコードを読み、使っているツールを集める。"""
+    info = gh.get(f"/repos/{name}")
+    tree = gh.get(f"/repos/{name}/git/trees/{info['default_branch']}", recursive=1).get("tree", [])
+    picks = []
+    for f in tree:
+        path = f.get("path", "")
+        base, ext = os.path.basename(path), os.path.splitext(path)[1].lower()
+        if f.get("type") != "blob" or f.get("size", 0) > 400_000 or "node_modules" in path:
+            continue
+        if base in DEP_FILES:
+            dep_lang = {"JavaScript", "TypeScript"} if base == "package.json" else {"Python", "Jupyter Notebook"}
+            if langs_allowed is None or dep_lang & langs_allowed:
+                picks.append(path)
+        elif ext in CODE_EXT and (langs_allowed is None or CODE_EXT[ext] in langs_allowed):
+            picks.append(path)
+    tools = set()
+    for path in picks[:60]:
+        r = gh.s.get(f"{API}/repos/{name}/contents/{path}", timeout=30,
+                     headers={"Accept": "application/vnd.github.raw"})
+        if r.ok:
+            text = r.text
+            if path.endswith(".ipynb"):  # ノートブックはコードセルの中身だけ見る
+                try:
+                    text = "\n".join("".join(c.get("source", [])) for c in json.loads(text).get("cells", [])
+                                      if c.get("cell_type") == "code")
+                except ValueError:
+                    pass
+            tools |= find_tools(text)
+    return tools
 
 class GitHub:
     def __init__(self):
@@ -93,7 +166,14 @@ def fetch(cfg: dict) -> dict:
         except requests.HTTPError as e:
             print(f"skip {name}: {e}", file=sys.stderr)
             continue
-        repos.append(dict(name=name, topics=info.get("topics", []), languages=langs, commits=commits))
+        tools = (cfg.get("tool_overrides") or {}).get(name) or []
+        if not tools and cfg.get("heatmap_rows", "languages") in ("tools", "groups"):
+            mine = (cfg.get("my_languages") or {}).get(name)
+            try:
+                tools = sorted(fetch_tools(gh, name, set(mine) if mine else None))
+            except requests.HTTPError as e:
+                print(f"tools skip {name}: {e}", file=sys.stderr)
+        repos.append(dict(name=name, topics=info.get("topics", []), languages=langs, commits=commits, tools=tools))
         print(f"{name}: {len(commits)} commits, topics={info.get('topics', [])}", file=sys.stderr)
     return {"repos": repos}
 
@@ -119,18 +199,43 @@ def sample(cfg: dict) -> dict:
 
 # ---------------------------------------------------------------- 集計
 
+def topic_label(topic: str, cfg: dict) -> str | None:
+    """Topic を図の列名に変換する。対象外の Topic なら None。
+    - domains に書いた Topic は、そこに書いた名前を使う
+    - auto_prefixes(例: ml-, role-)で始まる Topic は、自動で列にする
+      ml-pretraining → "Pretraining" / role-backend → "Backend"
+    """
+    if topic in cfg["domains"]:
+        return cfg["domains"][topic]
+    for prefix in cfg.get("auto_prefixes") or []:
+        if topic.startswith(prefix) and len(topic) > len(prefix):
+            word = topic[len(prefix):].replace("-", " ")
+            return word[:1].upper() + word[1:]
+    return None
+
+
 def repo_domains(repo: dict, cfg: dict) -> list[str]:
     over = (cfg.get("domain_overrides") or {}).get(repo["name"])
     tags = over if over else repo["topics"]
-    return [t for t in tags if t in cfg["domains"]]
+    labels = (topic_label(t, cfg) for t in tags)
+    return list(dict.fromkeys(l for l in labels if l))
+
+
+def domain_labels(data: dict, cfg: dict) -> list[str]:
+    """図に出す列。どれかのリポジトリで使われているものだけ(空の列は出さない)。
+    並びは domains に書いた順 → 自動で増えた列の順。"""
+    used = {d for r in data["repos"] for d in repo_domains(r, cfg)}
+    order = list(dict.fromkeys(cfg["domains"].values()))
+    order += sorted(used - set(order))
+    return [d for d in order if d in used]
 
 
 def repo_languages(repo: dict, cfg: dict) -> dict:
     """チーム開発のリポジトリでは、自分が書いた言語だけを数える(my_languages で指定)。"""
     mine = (cfg.get("my_languages") or {}).get(repo["name"])
-    if not mine:
-        return repo["languages"]
-    return {k: v for k, v in repo["languages"].items() if k in mine}
+    skip = set(cfg.get("exclude_languages") or [])
+    return {k: v for k, v in repo["languages"].items()
+            if (not mine or k in mine) and k not in skip}
 
 
 def months_between(start: dt.date, end: dt.date) -> list[dt.date]:
@@ -172,6 +277,38 @@ def learning_curve(data: dict, cfg: dict):
     return months, xs, train, val, len(all_commits)
 
 
+def tool_domain(data: dict, cfg: dict):
+    """各ツール(または種類)を、どの分野で使っているか(行ごとに合計1)。リポジトリ1つを1票として数える。
+    names には、各マスで実際に使ったツール名を入れる(マスの中に文字で出す用)。"""
+    mat: dict[str, Counter] = defaultdict(Counter)
+    names: dict[tuple, Counter] = defaultdict(Counter)
+    # どこでも使う定番ライブラリは、指定がなければ外す
+    skip = set(cfg.get("exclude_tools", ["NumPy", "matplotlib"]) or [])
+    groups = cfg.get("tool_groups") or TOOL_GROUPS
+    grouped = cfg.get("heatmap_rows") == "groups"
+    for r in data["repos"]:
+        doms = repo_domains(r, cfg)
+        tools = set(r.get("tools", [])) - skip
+        rows = defaultdict(set)
+        for tool in tools:
+            if grouped:
+                for g, members in groups.items():
+                    if tool in members:
+                        rows[g].add(tool)
+            else:
+                rows[tool].add(tool)
+        for row, used in rows.items():
+            for d in doms:
+                mat[row][d] += 1.0 / len(doms)
+                names[(row, d)].update(used)
+    doms = domain_labels(data, cfg)
+    rows = sorted(mat, key=lambda k: -sum(mat[k].values()))[: cfg.get("top_tools", 8)]
+    v = np.array([[mat[k][d] for d in doms] for k in rows]) if rows else np.zeros((0, len(doms)))
+    v = v / np.maximum(v.sum(axis=1, keepdims=True), 1e-9)
+    cell = [[[n for n, _ in names[(k, d)].most_common(cfg.get("names_per_cell", 2))] for d in doms] for k in rows]
+    return rows, doms, v, (cell if grouped else None)
+
+
 def language_domain(data: dict, cfg: dict):
     """各言語が、どの分野にどれくらい使われているか(言語ごとに合計1へ正規化)。"""
     mat: dict[str, Counter] = defaultdict(Counter)
@@ -182,11 +319,11 @@ def language_domain(data: dict, cfg: dict):
         for lang, b in langs.items():
             for d in doms:
                 mat[lang][d] += b / total / len(doms)
-    doms = list(cfg["domains"])
+    doms = domain_labels(data, cfg)
     langs = sorted(mat, key=lambda l: -sum(mat[l].values()))[: cfg.get("top_languages", 6)]
     v = np.array([[mat[l][d] for d in doms] for l in langs]) if langs else np.zeros((0, len(doms)))
     v = v / np.maximum(v.sum(axis=1, keepdims=True), 1e-9)
-    return langs, [cfg["domains"][d] for d in doms], v
+    return langs, doms, v
 
 
 def attention(data: dict, cfg: dict):
@@ -199,7 +336,7 @@ def attention(data: dict, cfg: dict):
         for d in doms:
             cnt[d] += recent / len(doms)
     total = sum(cnt.values())
-    items = sorted(((cfg["domains"][d], cnt[d] / total if total else 0) for d in cfg["domains"]), key=lambda x: -x[1])
+    items = sorted(((d, cnt[d] / total if total else 0) for d in domain_labels(data, cfg)), key=lambda x: -x[1])
     return items
 
 
@@ -252,20 +389,34 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
     ax.legend(frameon=False, fontsize=11, loc="upper right")
 
     # ② 言語 × 分野
-    langs, doms, v = language_domain(data, cfg)
+    by_tools = cfg.get("heatmap_rows", "languages") in ("tools", "groups")
+    if by_tools:
+        langs, doms, v, cell_names = tool_domain(data, cfg)
+    else:
+        (langs, doms, v), cell_names = language_domain(data, cfg), None
     ax = axs[1]
     if len(langs):
         cmap = plt.get_cmap(t["cmap"])
         ax.imshow(v, cmap=cmap, vmin=0, vmax=1, aspect="auto")
-        ax.set_xticks(range(len(doms)), [d.replace(" ", "\n") for d in doms])
+        if len(doms) <= 4 or max(len(d) for d in doms) <= 9:  # 短い列名なら横向きのまま
+            ax.set_xticks(range(len(doms)), [d.replace(" ", "\n") for d in doms])
+        else:  # 列が多いときは斜めにして重なりを防ぐ
+            ax.set_xticks(range(len(doms)), doms, rotation=35, ha="right", rotation_mode="anchor")
         ax.set_yticks(range(len(langs)), langs)
         for i in range(len(langs)):
             for j in range(len(doms)):
                 r, g, b, _ = cmap(v[i, j])
                 light_cell = 0.299 * r + 0.587 * g + 0.114 * b > 0.5  # セルの明るさで文字色を決める
-                ax.text(j, i, f"{v[i, j]:.2f}", ha="center", va="center", fontsize=11,
-                        color="#1f2328" if light_cell else "#ffffff")
-    ax.set_title("Language × Domain", loc="left")
+                color = "#1f2328" if light_cell else "#ffffff"
+                small = len(doms) > 5
+                names = cell_names[i][j] if cell_names and cfg.get("show_tool_names") else []
+                # 混同行列らしく数値を大きく。種類でまとめたときは、下に実際に使ったツール名を小さく添える
+                ax.text(j, i - (0.17 if names else 0), f"{v[i, j]:.2f}", ha="center", va="center",
+                        fontsize=10 if small else 12, fontweight="bold", color=color)
+                if names:
+                    ax.text(j, i + 0.2, "\n".join(names), ha="center", va="center", linespacing=1.15,
+                            fontsize=7 if small else 8, color=color, alpha=0.85)
+    ax.set_title(cfg.get("heatmap_title", ("Tools × Domain" if cfg.get("heatmap_rows") == "tools" else "What I use in each field") if by_tools else "Language × Domain"), loc="left")
 
     # ③ Attention weights
     items = attention(data, cfg)

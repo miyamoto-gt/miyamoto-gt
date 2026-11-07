@@ -1,3 +1,9 @@
+## Model Card
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
+  <img width="100%" alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
+</picture>
+
 ## 👋 Hi, I'm Miya
 
 小型LLMを「自分のデータで、自分の用途に合わせて」育てることに取り組んでいる学生です。
@@ -35,15 +41,6 @@
 ## Goal
 
 卒業までに、自分で学習したモデルを1つ公開し、他の人が使える状態にすること。
-
-## Model Card
-
-> 2026年3月に学習を始めた自分を、1つのモデルに見立てた学習曲線です。train loss = 累計コミット数、val loss = 触った「言語×分野」の数から計算(どちらも下がるほど成長)。毎日自動で更新されます。
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
-  <img width="100%" alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
-</picture>
 
 ## Projects
 

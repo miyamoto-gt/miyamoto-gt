@@ -15,10 +15,11 @@ exclude_repos:
 # リポジトリの Topics と、図に出す分野名の対応
 # リポジトリ設定の Topics に左側のタグを付けると、その分野として数えられる
 domains:
-  llm-tuning: "LLM tuning"
-  model-impl: "Model impl."
-  web-app: "Web app"
-  data-analysis: "Data analysis"
+  ml-basics: "Basics"
+  data-analysis: "Basics"
+  llm-tuning: "Tuning"
+  model-impl: "Modeling"
+  web-app: "Apps"
 # チーム開発のリポジトリで、自分が書いた言語だけを数える
 # (書かれていないリポジトリは、全部の言語を数える)
 my_languages:

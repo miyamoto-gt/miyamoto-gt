@@ -1,7 +1,8 @@
 # プロフィール図の設定。自分で編集するのはこのファイルだけ。
+# ※ メールアドレスはここに書かない(Actions の Secret「MY_EMAILS」に登録済み)
 
 user: miyamoto-gt
-start: 2026-03-01 # 学習曲線の開始月
+start: 2026-03-01 # 学習曲線の開始月(機械学習を始めた月)
 
 # 自分のリポジトリ(公開)は自動で集める。それ以外に含めたい組織リポジトリをここに書く
 extra_repos:
@@ -12,33 +13,37 @@ extra_repos:
 exclude_repos:
   - miyamoto-gt/miyamoto-gt
 
-# リポジトリの Topics と、図に出す分野名の対応
-# リポジトリ設定の Topics に左側のタグを付けると、その分野として数えられる
+# ヒートマップの行:ツールを種類ごとにまとめる(Deep Learning / Classic ML & Data など)
+heatmap_rows: groups
+
+# リポジトリの Topics と、図に出す列名の対応
+# 同じ列名を付けたタグは1列にまとまる
 domains:
   ml-basics: "Basics"
   data-analysis: "Basics"
   llm-tuning: "Tuning"
   model-impl: "Modeling"
   web-app: "Apps"
-# チーム開発のリポジトリで、自分が書いた言語だけを数える
-# (書かれていないリポジトリは、全部の言語を数える)
-my_languages:
-  jphacks/kz_2607: [Python]
-  Hackit-2026/Team18: [Python]
+
 # 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
 domain_overrides:
-  Hackit-2026/Team18: [llm-tuning,web-app]
+  Hackit-2026/Team18: [data-analysis, llm-tuning, web-app]
   jphacks/kz_2607: [model-impl, llm-tuning]
 
+# チーム開発のリポジトリで、自分が書いた言語だけを数える
+my_languages:
+  jphacks/kz_2607: [Python]
+  Hackit-2026/Team18: [JavaScript, Python]
+
 # 学習曲線に書き込む節目(新しい節目ができたら1行足す)
-# ※ 日付は仮置き。実際の日付に直すこと
 milestones:
+  - { date: 2026-03-01, label: "Started ML" }
   - { date: 2026-06-30, label: "chatbot" }
   - { date: 2026-07-03, label: "weather" }
-  - { date: 2026-08-24, label: "Transformer\nfrom scratch" }
   - { date: 2026-08-03, label: "hackit\nDMM award" }
+  - { date: 2026-08-24, label: "Transformer\nfrom scratch" }
   - { date: 2026-10-25, label: "JPHACKS" }
 
 # 図の細かい設定
-top_languages: 6 # ヒートマップに出す言語の数
+top_tools: 8 # ヒートマップに出す行の最大数
 attention_days: 30 # Attention weights を何日分のコミットで計算するか

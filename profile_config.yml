@@ -29,7 +29,7 @@ domain_languages:
 
 # 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
 domain_overrides:
-  Hackit-2026/Team18: [web-app, llm-tuning]
+  Hackit-2026/Team18: [web-backend, llm-tuning]
   jphacks/kz_2607: [model-impl, llm-tuning]
 
 # チーム開発のリポジトリで、自分が書いた言語だけを数える

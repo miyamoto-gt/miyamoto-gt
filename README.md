@@ -54,4 +54,4 @@
 
 ## Skills
 
-<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,tailwind,html,css,git" />
+<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,nodejs,aws,git" />

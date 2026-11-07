@@ -199,35 +199,47 @@ def sample(cfg: dict) -> dict:
 
 # ---------------------------------------------------------------- 集計
 
-def topic_label(topic: str, cfg: dict) -> str | None:
-    """Topic を図の列名に変換する。対象外の Topic なら None。
-    - domains に書いた Topic は、そこに書いた名前を使う
+def as_list(v) -> list:
+    return list(v) if isinstance(v, (list, tuple)) else [v]
+
+
+def topic_label(topic: str, cfg: dict) -> list[str]:
+    """Topic を図の列名(1つ以上)に変換する。対象外の Topic なら空のリスト。
+    - domains に書いた Topic は、そこに書いた名前を使う(リストで書けば複数の列に入る)
     - auto_prefixes(例: ml-, role-)で始まる Topic は、自動で列にする
       ml-pretraining → "Pretraining" / role-backend → "Backend"
     """
     if topic in cfg["domains"]:
-        return cfg["domains"][topic]
+        return as_list(cfg["domains"][topic])
     for prefix in cfg.get("auto_prefixes") or []:
         if topic.startswith(prefix) and len(topic) > len(prefix):
             word = topic[len(prefix):].replace("-", " ")
-            return word[:1].upper() + word[1:]
-    return None
+            return [word[:1].upper() + word[1:]]
+    return []
 
 
 def repo_domains(repo: dict, cfg: dict) -> list[str]:
     over = (cfg.get("domain_overrides") or {}).get(repo["name"])
     tags = over if over else repo["topics"]
-    labels = (topic_label(t, cfg) for t in tags)
-    return list(dict.fromkeys(l for l in labels if l))
+    return list(dict.fromkeys(l for t in tags for l in topic_label(t, cfg)))
 
 
 def domain_labels(data: dict, cfg: dict) -> list[str]:
     """図に出す列。どれかのリポジトリで使われているものだけ(空の列は出さない)。
     並びは domains に書いた順 → 自動で増えた列の順。"""
     used = {d for r in data["repos"] for d in repo_domains(r, cfg)}
-    order = list(dict.fromkeys(cfg["domains"].values()))
+    order = list(dict.fromkeys(l for v in cfg["domains"].values() for l in as_list(v)))
     order += sorted(used - set(order))
     return [d for d in order if d in used]
+
+
+def lang_targets(lang: str, doms: list[str], cfg: dict) -> list[str]:
+    """その言語を、リポジトリのどの列に配るか。
+    domain_languages で「この列はこの言語」と決めてあれば、その列にだけ入れる
+    (例: HTML/CSS は Web frontend、Python は Web backend)。"""
+    rules = cfg.get("domain_languages") or {}
+    own = [d for d in doms if lang in (rules.get(d) or [])]
+    return own or doms
 
 
 def repo_languages(repo: dict, cfg: dict) -> dict:
@@ -317,8 +329,9 @@ def language_domain(data: dict, cfg: dict):
         langs = repo_languages(r, cfg)
         total = sum(langs.values()) or 1
         for lang, b in langs.items():
-            for d in doms:
-                mat[lang][d] += b / total / len(doms)
+            targets = lang_targets(lang, doms, cfg) if doms else []
+            for d in targets:
+                mat[lang][d] += b / total / len(targets)
     doms = domain_labels(data, cfg)
     langs = sorted(mat, key=lambda l: -sum(mat[l].values()))[: cfg.get("top_languages", 6)]
     v = np.array([[mat[l][d] for d in doms] for l in langs]) if langs else np.zeros((0, len(doms)))
@@ -397,7 +410,8 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
     ax = axs[1]
     if len(langs):
         cmap = plt.get_cmap(t["cmap"])
-        ax.imshow(v, cmap=cmap, vmin=0, vmax=1, aspect="auto")
+        vmax = 1.15  # 1.00 のマスが真っ黒にならないよう、色の上限に少し余裕を持たせる
+        ax.imshow(v, cmap=cmap, vmin=0, vmax=vmax, aspect="auto")
         if len(doms) <= 4 or max(len(d) for d in doms) <= 9:  # 短い列名なら横向きのまま
             ax.set_xticks(range(len(doms)), [d.replace(" ", "\n") for d in doms])
         else:  # 列が多いときは斜めにして重なりを防ぐ
@@ -405,7 +419,7 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
         ax.set_yticks(range(len(langs)), langs)
         for i in range(len(langs)):
             for j in range(len(doms)):
-                r, g, b, _ = cmap(v[i, j])
+                r, g, b, _ = cmap(v[i, j] / vmax)
                 light_cell = 0.299 * r + 0.587 * g + 0.114 * b > 0.5  # セルの明るさで文字色を決める
                 color = "#1f2328" if light_cell else "#ffffff"
                 small = len(doms) > 5

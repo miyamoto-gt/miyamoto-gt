@@ -19,7 +19,8 @@ domains:
   llm-tuning: "LLM tuning"
   model-impl: "Model impl."
   data-analysis: "Model impl."
-  web-app: ["Web backend", "Web frontend"]
+  web-backend: "Web backend"
+  web-frontend: "Web frontend"
 
 # Web の列に入れる言語(ここにない言語は両方に半分ずつ入る)
 domain_languages:

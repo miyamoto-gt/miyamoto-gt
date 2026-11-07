@@ -1,11 +1,7 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
-  <img width="100%" alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
-</picture>
-
 ## 👋 Hi, I'm Miya
 
 小型LLMを「自分のデータで、自分の用途に合わせて」育てることに取り組んでいる学生です。
+2026年3月に機械学習を独学で始め、線形回帰などの基礎から、自分でモデルを学習させてアプリに組み込むところまで進んできました。
 モデルの中身を理解すること、そして作ったモデルを実際に動くアプリに組み込むことの両方を大事にしています。
 
 ## What I'm doing now
@@ -23,43 +19,40 @@
 - 最終課題では、QLoRAでSFTを行ったあとDPOで好みを学習させ、Base → SFT → DPO と段階ごとの性能差を自分で検証
 
 **Transformerを0から自作する** — [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1)
-- Transformerをゼロから実装して、中身を自分の手で理解する
-- Attentionの本体は固定したまま、入口(入力)と出口(出力)を差し替えて、各部品の役割を確かめる(入口 → 本体 → 出口)
-- 実験の結果を数字で記録し、「何を変えたか/何が起きたか/なぜか」を自分の言葉で説明できるようになる
-- 各週における進捗記録[Zenn](https://zenn.dev/miyamoto_gt)
+- Attentionをnumpyで手書きし、PyTorchで小さなTransformerを組み立てる
+- 一部を壊したり外したりして、挙動がどう変わるかを観察する
+- 次は、自作Transformerに素数判定を学習させ、内部で何を学んでいるかを可視化する予定
 
-**Models**
-- 小型モデル:LFM2 / LFM2.5(Liquid AI)、Qwen3、sarashina2.2-3b
-- 埋め込みモデル:Ruri(日本語の検索・RAG用)
-
-**Training & Inference**
-- 追加学習:LoRA / QLoRA、SFT、DPO
-- ツール:Unsloth、Hugging Face、Ollama、mlx-lm、Google Colab
-- 応用:RAG、教師モデルの出力を使った蒸留
-
-###  Applied: 学んだことをアプリに組み込む
+### Applied: 学んだことをアプリに組み込む
 - 大きなモデルの出力を教師データにして、小型モデル(LFM2.5)をLoRAで学習させる — あいづち
 - 3B規模のモデル単体の限界を測り、RAGで補う
 
 ### Community
-- LLM-jp
-- GDGoc
-- DataDreamers
+- LLM-jp に参加中
 
 ## Goal
 
 卒業までに、自分で学習したモデルを1つ公開し、他の人が使える状態にすること。
+
+## Model Card
+
+> 2026年3月に学習を始めた自分を、1つのモデルに見立てた学習曲線です。train loss = 累計コミット数、val loss = 触った「言語×分野」の数から計算(どちらも下がるほど成長)。毎日自動で更新されます。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-charts-dark.svg" />
+  <img width="100%" alt="learning curve, language x domain, attention weights" src="assets/profile-charts-light.svg" />
+</picture>
 
 ## Projects
 
 | Project | 何をしたか | 技術 |
 | --- | --- | --- |
 | [あいづち \| AIZUCHI](https://github.com/Hackit-2026/Team18) | 一人配信にAIが視聴者コメントを返すアプリ。基盤サイトを実装し、コメント生成用の小型モデルを自作データで学習中(hackit 2026 DMM賞) | Node.js / OpenAI API / LFM2.5 / Unsloth |
-| [kz_2607](https://github.com/jphacks/kz_2607) | 会話で育てたペットを、次の人へ旅立たせるサービス。6つの質問から性格と見た目が決まり、覚えた言葉や思い出を持って人から人へ渡っていく(M5Stack Core2 + スマホ)。性格の軸ごとのLoRAによる会話生成と、自作Transformerによる判定モデルを担当(JPHACKS 2026) | PyTorch / LoRA |
+| [kz_2607](https://github.com/jphacks/kz_2607) | (ここに一言説明)。性格の軸ごとのLoRAによる生成と、自作Transformerによる判定モデルを担当(JPHACKS 2026) | PyTorch / LoRA |
 | [Transformer0-1](https://github.com/miyamoto-gt/Transformer0-1) | AttentionのスクラッチからTransformerの自作まで | NumPy / PyTorch |
 | [weather_model](https://github.com/miyamoto-gt/weather_model) + [weather_predict_site](https://github.com/miyamoto-gt/weather_predict_site) | 気象庁データで翌日の天気を予測するモデルを作り、API化してWebアプリに(個人開発) | pandas / statsmodels / FastAPI |
 | [chatbot](https://github.com/miyamoto-gt/chatbot) | 機械学習の学習支援チャットボット。質問履歴から「学んだこと・復習すべきこと」を要約(個人開発) | Gemini API / Express |
-| [KIT RAG](https://github.com/miyamoto-gt/KIT_LLM_RAG) | 金沢工業大学についての質問に、3Bの小型モデルだけで答えるRAG(DataDreamers 内コンペ)。大学サイトのリンクを木構造でたどってページとPNG画像から情報を集め、キャンパスマップ画像から建物や部屋を特定する検索部分まで含めて、アーキテクチャを1から実装 | sarashina2.2-3b / 埋め込み検索 / Colab |
+
 ## Skills
 
-<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,html,css,git,aws" />
+<img alt="skills" src="https://skillicons.dev/icons?i=python,pytorch,fastapi,js,ts,nodejs,express,react,tailwind,html,css,git" />

@@ -203,6 +203,13 @@ def as_list(v) -> list:
     return list(v) if isinstance(v, (list, tuple)) else [v]
 
 
+def norm(s: str) -> str:
+    """表記ゆれをそろえる: 大文字小文字・ハイフン・スペース・先頭の web を無視する。
+    web-backend / Web backend / backend → "backend" """
+    s = re.sub(r"[^a-z0-9]", "", str(s).lower())
+    return s[3:] if s.startswith("web") and len(s) > 3 else s
+
+
 def topic_label(topic: str, cfg: dict) -> list[str]:
     """Topic を図の列名(1つ以上)に変換する。対象外の Topic なら空のリスト。
     - domains に書いた Topic は、そこに書いた名前を使う(リストで書けば複数の列に入る)
@@ -211,6 +218,10 @@ def topic_label(topic: str, cfg: dict) -> list[str]:
     """
     if topic in cfg["domains"]:
         return as_list(cfg["domains"][topic])
+    # 完全一致しなくても、表記ゆれだけの違いなら同じタグとみなす(web-backend と backend など)
+    for key, label in cfg["domains"].items():
+        if norm(key) == norm(topic):
+            return as_list(label)
     for prefix in cfg.get("auto_prefixes") or []:
         if topic.startswith(prefix) and len(topic) > len(prefix):
             word = topic[len(prefix):].replace("-", " ")
@@ -237,8 +248,9 @@ def lang_targets(lang: str, doms: list[str], cfg: dict) -> list[str]:
     """その言語を、リポジトリのどの列に配るか。
     domain_languages で「この列はこの言語」と決めてあれば、その列にだけ入れる
     (例: HTML/CSS は Web frontend、Python は Web backend)。"""
-    rules = cfg.get("domain_languages") or {}
-    own = [d for d in doms if lang in (rules.get(d) or [])]
+    # 列名は表記ゆれを無視して照合する("Web backend" と "backend" を同じ列とみなす)
+    rules = {norm(k): set(v or []) for k, v in (cfg.get("domain_languages") or {}).items()}
+    own = [d for d in doms if lang in rules.get(norm(d), set())]
     return own or doms
 
 
@@ -452,7 +464,12 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
 
 
 def main():
-    cfg = yaml.safe_load(Path("profile_config.yml").read_text(encoding="utf-8"))
+    text = Path("profile_config.yml").read_text(encoding="utf-8")
+    text = re.sub(r"\}\s*\.+\s*$", "}", text, flags=re.M)  # 「}.」のような行末の余計なピリオドを消す
+    try:
+        cfg = yaml.safe_load(text)
+    except yaml.YAMLError as e:
+        sys.exit(f"profile_config.yml の書き方に誤りがあります:\n{e}")
     is_sample = "--sample" in sys.argv
     data = sample(cfg) if is_sample else fetch(cfg)
     setup_font()

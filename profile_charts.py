@@ -457,7 +457,7 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
         ax.text(w + .01, i, f"{w:.2f}", va="center", fontsize=11)
     ax.set_xlim(0, max(max(weights, default=0) * 1.3, .1))
     days = cfg.get("attention_days", 30)
-    period = (f"since {dt.date.fromisoformat(str(cfg['start'])):%b %Y}" if str(days).lower() == "all"
+    period = ("all time" if str(days).lower() == "all"
               else f"last {days} days")
     ax.set_title(f"Attention weights — {period}", loc="left")
 

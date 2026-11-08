@@ -14,7 +14,7 @@ exclude_repos:
   - miyamoto-gt/miyamoto-gt
 
 # リポジトリの Topics と、図に出す分野名の対応
-# リストで書くと、1つのタグが複数の列に入る
+# (web-backend / web-frontend の Topics も、backend / frontend として数えられる)
 domains:
   llm-tuning: "LLM tuning"
   model-impl: "Model impl."
@@ -22,10 +22,10 @@ domains:
   backend: "backend"
   frontend: "frontend"
 
-# Web の列に入れる言語(ここにない言語は両方に半分ずつ入る)
+# Web の列に入れる言語
 domain_languages:
-  "Web frontend": [HTML, CSS]
-  "Web backend": [Python]
+  frontend: [HTML, CSS]
+  backend: [Python, JavaScript]
 
 # 組織リポジトリなど、自分で Topics を付けられないリポジトリの分野
 domain_overrides:

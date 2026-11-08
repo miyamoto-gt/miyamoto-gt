@@ -48,4 +48,4 @@ milestones:
 
 # 図の細かい設定
 top_languages: 6 # ヒートマップに出す言語の数
-attention_days: 30 # Attention weights を何日分のコミットで計算するか
+attention_days: all # Attention weights の期間(all = 開始月からずっと / 30 などの数字 = 直近の日数)

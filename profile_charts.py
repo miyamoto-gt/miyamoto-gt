@@ -352,8 +352,10 @@ def language_domain(data: dict, cfg: dict):
 
 
 def attention(data: dict, cfg: dict):
-    """直近 N 日のコミットを分野ごとに数え、合計1の重みにする。"""
-    cutoff = str(dt.date.today() - dt.timedelta(days=cfg.get("attention_days", 30)))
+    """直近 N 日のコミットを分野ごとに数え、合計1の重みにする。
+    attention_days: all なら、開始月からの全期間で数える。"""
+    days = cfg.get("attention_days", 30)
+    cutoff = str(cfg["start"]) if str(days).lower() == "all" else str(dt.date.today() - dt.timedelta(days=int(days)))
     cnt = Counter()
     for r in data["repos"]:
         doms = repo_domains(r, cfg)
@@ -454,7 +456,10 @@ def draw(data: dict, cfg: dict, theme: str, path: Path, is_sample: bool):
     for i, w in enumerate(weights):
         ax.text(w + .01, i, f"{w:.2f}", va="center", fontsize=11)
     ax.set_xlim(0, max(max(weights, default=0) * 1.3, .1))
-    ax.set_title(f"Attention weights — last {cfg.get('attention_days', 30)} days", loc="left")
+    days = cfg.get("attention_days", 30)
+    period = (f"since {dt.date.fromisoformat(str(cfg['start'])):%b %Y}" if str(days).lower() == "all"
+              else f"last {days} days")
+    ax.set_title(f"Attention weights — {period}", loc="left")
 
     stamp = f"updated {dt.date.today()}" + ("  ·  SAMPLE DATA" if is_sample else "")
     fig.text(.995, .01, stamp, ha="right", fontsize=10, color=t["sub"])
